@@ -101,7 +101,7 @@ __END_DECLS
 __EXPORT void board_peripheral_reset(int ms)
 {
 	/* set the peripheral rails off */
-	VDD_3V3_SENSORS_EN(false);
+	board_control_spi_sensors_power(false, 0xffff);
 
 	bool last = READ_VDD_3V3_SPEKTRUM_POWER_EN();
 	/* Keep Spektum on to discharge rail*/
@@ -115,7 +115,7 @@ __EXPORT void board_peripheral_reset(int ms)
 
 	/* switch the peripheral rail back on */
 	VDD_3V3_SPEKTRUM_POWER_EN(last);
-	VDD_3V3_SENSORS_EN(true);
+	board_control_spi_sensors_power(true, 0xffff);
 }
 
 /************************************************************************************
@@ -163,7 +163,7 @@ stm32_boardinitialize(void)
 	px4_gpio_init(gpio, arraySize(gpio));
 
 	/* configure SPI interfaces */
-	stm32_spiinitialize();
+	px4_arch_gpiowrite(GPIO_VDD_3V3_SENSORS_EN, 0);
 
 	/* configure USB interfaces */
 	stm32_usbinitialize();
@@ -198,10 +198,13 @@ stm32_boardinitialize(void)
 __EXPORT int board_app_initialize(uintptr_t arg)
 {
 	/* Power on Interfaces */
-	VDD_3V3_SENSORS_EN(true);
+	px4_arch_gpiowrite(GPIO_VDD_3V3_SENSORS_EN, 1);
+	board_control_spi_sensors_power(true, 0xffff);
 	VDD_3V3_SPEKTRUM_POWER_EN(true);
 
 	px4_platform_init();
+
+	stm32_spiinitialize();
 
 	/* configure the DMA allocator */
 	if (board_dma_alloc_init() < 0) {

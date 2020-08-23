@@ -99,7 +99,7 @@ PARAM_DEFINE_FLOAT(TRIM_YAW, 0.0f);
  * @min 5
  * @max 300
  * @decimal 1
- * @increment 0.5
+ * @increment 1
  */
 PARAM_DEFINE_INT32(COM_DL_LOSS_T, 10);
 
@@ -194,11 +194,11 @@ PARAM_DEFINE_FLOAT(COM_RC_LOSS_T, 0.5f);
  * @group Commander
  * @unit %
  * @min 5
- * @max 40
+ * @max 80
  * @decimal 0
  * @increment 0.05
  */
-PARAM_DEFINE_FLOAT(COM_RC_STICK_OV, 12.0f);
+PARAM_DEFINE_FLOAT(COM_RC_STICK_OV, 50.0f);
 
 /**
  * Home set horizontal threshold
@@ -330,9 +330,9 @@ PARAM_DEFINE_INT32(COM_LOW_BAT_ACT, 0);
  * @unit s
  * @min 0
  * @max 60
- * @increment 1
+ * @increment 0.01
  */
-PARAM_DEFINE_FLOAT(COM_OF_LOSS_T, 0.0f);
+PARAM_DEFINE_FLOAT(COM_OF_LOSS_T, 0.5f);
 
 /**
  * Set offboard loss failsafe mode
@@ -569,7 +569,7 @@ PARAM_DEFINE_FLOAT(COM_ARM_EKF_YAW, 0.5f);
  * @decimal 4
  * @increment 0.0001
  */
-PARAM_DEFINE_FLOAT(COM_ARM_EKF_AB, 1.73e-3f);
+PARAM_DEFINE_FLOAT(COM_ARM_EKF_AB, 0.0022f);
 
 /**
  * Maximum value of EKF gyro delta angle bias estimate that will allow arming
@@ -578,10 +578,10 @@ PARAM_DEFINE_FLOAT(COM_ARM_EKF_AB, 1.73e-3f);
  * @unit rad
  * @min 0.0001
  * @max 0.0017
- * @decimal 5
+ * @decimal 4
  * @increment 0.0001
  */
-PARAM_DEFINE_FLOAT(COM_ARM_EKF_GB, 8.7e-4f);
+PARAM_DEFINE_FLOAT(COM_ARM_EKF_GB, 0.0011f);
 
 /**
  * Maximum accelerometer inconsistency between IMU units that will allow arming
@@ -616,7 +616,7 @@ PARAM_DEFINE_FLOAT(COM_ARM_IMU_GYR, 0.25f);
  * @min 3
  * @max 180
  */
-PARAM_DEFINE_INT32(COM_ARM_MAG_ANG, 30);
+PARAM_DEFINE_INT32(COM_ARM_MAG_ANG, 45);
 
 /**
  * Enable mag strength preflight check
@@ -799,15 +799,12 @@ PARAM_DEFINE_INT32(COM_TAKEOFF_ACT, 0);
  *
  * The data link loss failsafe will only be entered after a timeout,
  * set by COM_DL_LOSS_T in seconds. Once the timeout occurs the selected
- * action will be executed. Setting this parameter to 4 will enable CASA
- * Outback Challenge rules, which are only recommended to participants
- * of that competition.
+ * action will be executed.
  *
  * @value 0 Disabled
  * @value 1 Hold mode
  * @value 2 Return mode
  * @value 3 Land mode
- * @value 4 Data Link Auto Recovery (CASA Outback Challenge rules)
  * @value 5 Terminate
  * @value 6 Lockdown
  *
@@ -821,14 +818,11 @@ PARAM_DEFINE_INT32(NAV_DLL_ACT, 0);
  * The RC loss failsafe will only be entered after a timeout,
  * set by COM_RC_LOSS_T in seconds. If RC input checks have been disabled
  * by setting the COM_RC_IN_MODE param it will not be triggered.
- * Setting this parameter to 4 will enable CASA Outback Challenge rules,
- * which are only recommended to participants of that competition.
  *
  * @value 0 Disabled
  * @value 1 Hold mode
  * @value 2 Return mode
  * @value 3 Land mode
- * @value 4 RC Auto Recovery (CASA Outback Challenge rules)
  * @value 5 Terminate
  * @value 6 Lockdown
  *
@@ -843,19 +837,6 @@ PARAM_DEFINE_INT32(NAV_RCL_ACT, 2);
  * @group Mission
  */
 PARAM_DEFINE_INT32(COM_OBS_AVOID, 0);
-
-/**
- * Set avoidance system bootup timeout.
- *
- * The avoidance system running on the companion computer is expected to boot
- * within this time and start providing trajectory points.
- * If no avoidance system is detected a MAVLink warning message is sent.
- * @group Commander
- * @unit s
- * @min 0
- * @max 200
- */
-PARAM_DEFINE_INT32(COM_OA_BOOT_T, 100);
 
 /**
  * User Flight Profile
@@ -918,3 +899,44 @@ PARAM_DEFINE_INT32(COM_MOT_TEST_EN, 1);
  * @increment 0.1
  */
 PARAM_DEFINE_FLOAT(COM_KILL_DISARM, 5.0f);
+
+/**
+ * Maximum allowed CPU load to still arm
+ *
+ * A negative value disables the check.
+ *
+ * @group Commander
+ * @unit %
+ * @min -1
+ * @max 100
+ * @increment 1
+ */
+PARAM_DEFINE_FLOAT(COM_CPU_MAX, 90.0f);
+
+/**
+ * Required number of redundant power modules
+ *
+ * This configures a check to verify the expected number of 5V rail power supplies are present. By default only one is expected.
+ * Note: CBRK_SUPPLY_CHK disables all power checks including this one.
+ *
+ * @group Commander
+ * @min 0
+ * @max 4
+ */
+PARAM_DEFINE_INT32(COM_POWER_COUNT, 1);
+
+/**
+ * Timeout for detecting a failure after takeoff
+ *
+ * A non-zero, positive value specifies the timeframe in seconds within failure detector is allowed to put the vehicle into
+ * a lockdown state if attitude exceeds the limits defined in FD_FAIL_P and FD_FAIL_R.
+ * The check is not executed for flight modes that do support acrobatic maneuvers, e.g: Acro (MC/FW), Rattitude and Manual (FW).
+ * A zero or negative value means that the check is disabled.
+ *
+ * @group Commander
+ * @unit s
+ * @min -1.0
+ * @max 5.0
+ * @decimal 3
+ */
+PARAM_DEFINE_FLOAT(COM_LKDOWN_TKO, 3.0f);

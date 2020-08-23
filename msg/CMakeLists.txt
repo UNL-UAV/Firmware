@@ -88,6 +88,9 @@ set(msg_files
 	offboard_control_mode.msg
 	onboard_computer_status.msg
 	optical_flow.msg
+	orb_test.msg
+	orb_test_large.msg
+	orb_test_medium.msg
 	orbit_status.msg
 	parameter_update.msg
 	ping.msg
@@ -98,37 +101,37 @@ set(msg_files
 	power_button_state.msg
 	power_monitor.msg
 	pwm_input.msg
-	rpm.msg
+	px4io_status.msg
 	qshell_req.msg
 	qshell_retval.msg
 	radio_status.msg
 	rate_ctrl_status.msg
 	rc_channels.msg
 	rc_parameter_map.msg
+	rpm.msg
 	safety.msg
 	satellite_info.msg
 	sensor_accel.msg
 	sensor_accel_fifo.msg
-	sensor_accel_integrated.msg
-	sensor_accel_status.msg
 	sensor_baro.msg
 	sensor_combined.msg
 	sensor_correction.msg
 	sensor_gyro.msg
 	sensor_gyro_fifo.msg
-	sensor_gyro_integrated.msg
-	sensor_gyro_status.msg
 	sensor_mag.msg
-	sensor_preflight.msg
+	sensor_preflight_imu.msg
+	sensor_preflight_mag.msg
 	sensor_selection.msg
-	servorail_status.msg
 	subsystem_info.msg
 	system_power.msg
 	task_stack_info.msg
 	tecs_status.msg
+	telemetry_heartbeat.msg
 	telemetry_status.msg
 	test_motor.msg
+	timesync.msg
 	timesync_status.msg
+	trajectory_bezier.msg
 	trajectory_waypoint.msg
 	transponder_report.msg
 	tune_control.msg
@@ -149,6 +152,7 @@ set(msg_files
 	vehicle_global_position.msg
 	vehicle_gps_position.msg
 	vehicle_imu.msg
+	vehicle_imu_status.msg
 	vehicle_land_detected.msg
 	vehicle_local_position.msg
 	vehicle_local_position_setpoint.msg
@@ -158,10 +162,12 @@ set(msg_files
 	vehicle_roi.msg
 	vehicle_status.msg
 	vehicle_status_flags.msg
+	vehicle_trajectory_bezier.msg
 	vehicle_trajectory_waypoint.msg
 	vtol_vehicle_status.msg
 	wheel_encoders.msg
 	wind_estimate.msg
+	yaw_estimator_status.msg
 )
 
 set(deprecated_msgs
@@ -203,7 +209,7 @@ endif()
 set(msg_out_path ${PX4_BINARY_DIR}/uORB/topics)
 set(msg_source_out_path	${CMAKE_CURRENT_BINARY_DIR}/topics_sources)
 
-set(uorb_headers)
+set(uorb_headers ${msg_out_path}/uORBTopics.hpp)
 set(uorb_sources ${msg_source_out_path}/uORBTopics.cpp)
 foreach(msg_file ${msg_files})
 	get_filename_component(msg ${msg_file} NAME_WE)
@@ -229,7 +235,9 @@ add_custom_command(OUTPUT ${uorb_headers}
 	DEPENDS
 		${msg_files}
 		templates/uorb/msg.h.em
+		templates/uorb/uORBTopics.hpp.em
 		tools/px_generate_uorb_topic_files.py
+		tools/px_generate_uorb_topic_helper.py
 	COMMENT "Generating uORB topic headers"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	VERBATIM
@@ -250,7 +258,9 @@ add_custom_command(OUTPUT ${uorb_sources}
 	DEPENDS
 		${msg_files}
 		templates/uorb/msg.cpp.em
+		templates/uorb/uORBTopics.cpp.em
 		tools/px_generate_uorb_topic_files.py
+		tools/px_generate_uorb_topic_helper.py
 	COMMENT "Generating uORB topic sources"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	VERBATIM

@@ -33,8 +33,7 @@
 
 #pragma once
 
-#include <sensor_corrections/SensorCorrections.hpp>
-
+#include <lib/sensor_calibration/Gyroscope.hpp>
 #include <lib/mathlib/math/Limits.hpp>
 #include <lib/matrix/matrix/math.hpp>
 #include <lib/mathlib/math/filter/LowPassFilter2pVector3f.hpp>
@@ -42,7 +41,7 @@
 #include <px4_platform_common/log.h>
 #include <px4_platform_common/module_params.h>
 #include <px4_platform_common/px4_config.h>
-#include <px4_platform_common/px4_work_queue/WorkItem.hpp>
+#include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/SubscriptionCallback.hpp>
@@ -56,7 +55,7 @@
 namespace sensors
 {
 
-class VehicleAngularVelocity : public ModuleParams, public px4::WorkItem
+class VehicleAngularVelocity : public ModuleParams, public px4::ScheduledWorkItem
 {
 public:
 
@@ -91,7 +90,7 @@ private:
 		{this, ORB_ID(sensor_gyro), 2}
 	};
 
-	SensorCorrections _corrections;
+	calibration::Gyroscope _calibration{};
 
 	matrix::Vector3f _bias{0.f, 0.f, 0.f};
 
@@ -103,12 +102,14 @@ private:
 	static constexpr const float kInitialRateHz{1000.0f}; /**< sensor update rate used for initialization */
 	float _update_rate_hz{kInitialRateHz}; /**< current rate-controller loop update rate in [Hz] */
 
+	uint8_t _required_sample_updates{0}; /**< number or sensor publications required for configured rate */
+
 	// angular velocity filters
 	math::LowPassFilter2pVector3f _lp_filter_velocity{kInitialRateHz, 30.0f};
 	math::NotchFilter<matrix::Vector3f> _notch_filter_velocity{};
 
 	// angular acceleration filter
-	math::LowPassFilter2pVector3f _lp_filter_acceleration{kInitialRateHz, 10.0f};
+	math::LowPassFilter2pVector3f _lp_filter_acceleration{kInitialRateHz, 30.0f};
 
 	float _filter_sample_rate{kInitialRateHz};
 

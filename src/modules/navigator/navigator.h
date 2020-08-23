@@ -41,7 +41,6 @@
 
 #pragma once
 
-#include "datalinkloss.h"
 #include "enginefailure.h"
 #include "follow_target.h"
 #include "geofence.h"
@@ -51,7 +50,6 @@
 #include "loiter.h"
 #include "mission.h"
 #include "navigator_mode.h"
-#include "rcloss.h"
 #include "rtl.h"
 #include "takeoff.h"
 
@@ -60,7 +58,7 @@
 #include <lib/perf/perf_counter.h>
 #include <px4_platform_common/module.h>
 #include <px4_platform_common/module_params.h>
-#include <uORB/PublicationQueued.hpp>
+#include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/geofence_result.h>
 #include <uORB/topics/home_position.h>
@@ -83,7 +81,7 @@
 /**
  * Number of navigation modes that need on_active/on_inactive calls
  */
-#define NAVIGATOR_MODE_ARRAY_SIZE 11
+#define NAVIGATOR_MODE_ARRAY_SIZE 9
 
 
 class Navigator : public ModuleBase<Navigator>, public ModuleParams
@@ -382,8 +380,6 @@ private:
 	Land		_land;			/**< class for handling land commands */
 	PrecLand	_precland;			/**< class for handling precision land commands */
 	RTL 		_rtl;				/**< class that handles RTL */
-	RCLoss 		_rcLoss;				/**< class that handles RTL according to OBC rules (rc loss mode) */
-	DataLinkLoss	_dataLinkLoss;			/**< class that handles the OBC datalink loss mode */
 	EngineFailure	_engineFailure;			/**< class that handles the engine failure mode (FW only!) */
 	GpsFailure	_gpsFailure;			/**< class that handles the OBC gpsfailure loss mode */
 	FollowTarget	_follow_target;
